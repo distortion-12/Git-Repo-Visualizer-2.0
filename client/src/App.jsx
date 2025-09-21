@@ -96,14 +96,8 @@ function App() {
     }
   }, [repoUrl, githubToken, expandedSidebarWidth]);
 
-  // Handle hovering back to graph area to restore layout
-  // Only restore if there's an active file selection and layout is expanded
-  const handleGraphHover = useCallback(() => {
-    if (isLayoutExpanded && selectedFile && selectedFile.type === 'File') {
-      setIsLayoutExpanded(false);
-      setSidebarWidth(originalSidebarWidth);
-    }
-  }, [isLayoutExpanded, selectedFile, originalSidebarWidth]);
+  // Note: We intentionally do NOT auto-restore layout on hover.
+  // The graph/tree should remain in the exact state the user left it.
 
   // Handle clearing selection and restoring layout
   const handleClearSelection = useCallback(() => {
@@ -165,7 +159,7 @@ function App() {
       <BackgroundFX intensity={1.2} />
       <div style={{ position:'relative', zIndex:1, display:'contents' }}>
       {/* Main Content */}
-      <main className="main-content" onMouseEnter={handleGraphHover}>
+  <main className="main-content">
         <header className="main-header">
            <div className="button-group">
               <button onClick={() => setCurrentVis('graph')} className={currentVis === 'graph' ? 'active' : ''}>Graph View</button>
@@ -190,7 +184,6 @@ function App() {
           setTilt({ rx: cy*6, ry: -cx*6 });
         }} 
         onMouseLeave={()=>setTilt({rx:0,ry:0})} 
-        onMouseEnter={handleGraphHover}
         style={{ perspective:'1200px' }}
       >
         <div style={{ transform:`rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`, transformStyle:'preserve-3d', transition:'transform .12s ease' , width:'100%', height:'100%' }}>
