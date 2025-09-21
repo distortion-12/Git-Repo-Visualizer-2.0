@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import axios from 'axios';
 import RepoGraph from './components/RepoGraph';
 import TreeView from './components/TreeView';
 import CodePanel from './components/CodePanel'; // This will now be our right-side panel
 import BackgroundFX from './components/BackgroundFX';
+import { fetchRepoTree, fetchFileContent } from './utils/githubApi';
 
 function App() {
   const [view, setView] = useState('input'); // 'input' or 'visualizer'
@@ -32,12 +32,12 @@ function App() {
     setStatus({ message: 'Fetching repository structure...', type: 'info' });
 
     try {
-      const treeResponse = await axios.post('http://localhost:3001/api/tree', { repoUrl, token: githubToken });
-      setRepoData(treeResponse.data);
-      setStatus({ message: `Success! Found ${treeResponse.data.length} items.`, type: 'success' });
+      const treeData = await fetchRepoTree(repoUrl, githubToken);
+      setRepoData(treeData);
+      setStatus({ message: `Success! Found ${treeData.length} items.`, type: 'success' });
       setView('visualizer'); // Switch to the visualizer view
     } catch (error) {
-      setStatus({ message: `Error: ${error.response?.data?.message || 'An unexpected error occurred.'}`, type: 'error' });
+      setStatus({ message: `Error: ${error.message}`, type: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -64,8 +64,7 @@ function App() {
   setSelectedFile({ path: node.path, type: 'File', sha: node.sha, content: 'Loading...' });
 
     try {
-  const response = await axios.post('http://localhost:3001/api/content', { repoUrl, fileSha: node.sha, token: githubToken, path: node.path });
-  const payload = response.data;
+  const payload = await fetchFileContent(repoUrl, node.sha, githubToken, node.path);
   setSelectedFile(prev => ({ ...prev, content: payload.content, base64: payload.base64, isBinary: payload.isBinary, mime: payload.mime }));
     } catch (error) {
       setSelectedFile(prev => ({ ...prev, content: 'Error: Could not load file content.' }));

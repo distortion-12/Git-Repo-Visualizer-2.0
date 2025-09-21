@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { fetchFileCommits, getAIExplanation } from '../utils/githubApi';
 
 const CodePanel = ({ file, repoUrl, token, onClose, onHide, sidebarWidth = 360, onResizeSidebar }) => {
   const [explanation, setExplanation] = useState('');
@@ -81,16 +81,10 @@ const CodePanel = ({ file, repoUrl, token, onClose, onHide, sidebarWidth = 360, 
     setExplanation('🧠 Thinking...');
 
     try {
-      const response = await axios.post('http://localhost:3001/api/explain', { 
-        code: file.content, 
-        context,
-        apiKey,
-        provider,
-        model
-      });
-      setExplanation(response.data.explanation);
+      const explanation = await getAIExplanation(file.content, context, apiKey, provider, model);
+      setExplanation(explanation);
     } catch (error) {
-      setExplanation(`Sorry, an error occurred. ${error.response?.data?.message || ''}`);
+      setExplanation(`Sorry, an error occurred. ${error.message}`);
     } finally {
       setIsExplaining(false);
     }
@@ -99,11 +93,13 @@ const CodePanel = ({ file, repoUrl, token, onClose, onHide, sidebarWidth = 360, 
   const fetchCommits = async () => {
     if (!file?.path) return;
     try {
-      const resp = await axios.post('http://localhost:3001/api/commits', { repoUrl, token, filepath: file.path });
-      setCommits(resp.data);
+      const commits = await fetchFileCommits(repoUrl, token, file.path);
+      setCommits(commits);
       setShowCommits(true);
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
+      setCommits([]);
+      setShowCommits(true);
     }
   };
 
