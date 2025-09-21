@@ -14,15 +14,19 @@ const createHeaders = (token) => {
 
 // Parse GitHub repository URL
 export const parseRepoUrl = (repoUrl) => {
-  const urlPattern = /github\.com\/([^\/]+)\/([^\/]+)/;
-  const match = repoUrl.match(urlPattern);
-  if (!match) {
-    throw new Error('Invalid GitHub repository URL.');
-  }
-  return {
-    owner: match[1],
-    repo: match[2].replace('.git', '')
-  };
+  if (!repoUrl || typeof repoUrl !== 'string') throw new Error('Invalid GitHub repository URL.');
+  // Accept forms like:
+  // - https://github.com/owner/repo
+  // - https://github.com/owner/repo/
+  // - https://github.com/owner/repo.git
+  // - https://github.com/owner/repo/tree/main
+  // - https://github.com/owner/repo/blob/main/path
+  const pattern = /^https?:\/\/([^\/]*\.)?github\.com\/([^\/]+)\/([^\/#?]+)(?:[\/#?].*)?$/i;
+  const m = repoUrl.trim().match(pattern);
+  if (!m) throw new Error('Invalid GitHub repository URL.');
+  const owner = m[2];
+  const repo = m[3].replace(/\.git$/i, '');
+  return { owner, repo };
 };
 
 // Fetch repository tree
