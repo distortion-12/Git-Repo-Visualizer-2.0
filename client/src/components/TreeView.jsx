@@ -39,14 +39,18 @@ const TreeView = ({ data, onNodeClick, onRightClick, searchTerm, isZoomEnabled, 
     const treeLayout = d3.tree().size([width, dynamicHeight - 200]);
     treeLayout(root);
 
-    const svg = container.append("svg").attr("width", width).attr("height", dynamicHeight).attr("viewBox", [0, 0, width, dynamicHeight]);
+  const svg = container.append("svg").attr("width", width).attr("height", dynamicHeight).attr("viewBox", [0, 0, width, dynamicHeight]);
+  const defs = svg.append('defs');
+  const glow = defs.append('filter').attr('id','treeGlow');
+  glow.append('feGaussianBlur').attr('stdDeviation','2.5').attr('result','coloredBlur');
+  const fm = glow.append('feMerge'); fm.append('feMergeNode').attr('in','coloredBlur'); fm.append('feMergeNode').attr('in','SourceGraphic');
     const g = svg.append("g").attr("transform", `translate(0, 50)`);
 
     zoomRef.current = d3.zoom().extent([[0, 0], [width, dynamicHeight]]).scaleExtent([0.5, 3]).on("zoom", (event) => {
         g.attr("transform", event.transform);
     });
 
-    g.append("g").attr("fill", "none").attr("stroke", "#a1a1aa").attr("stroke-opacity", 0.7).attr("stroke-width", 1.5)
+    g.append("g").attr("fill", "none").attr("stroke", "#93c5fd").attr("stroke-opacity", 0.35).attr("stroke-width", 1.2).style('filter','url(#treeGlow)')
       .selectAll("path").data(root.links()).join("path")
       .attr("d", d3.linkVertical().x(d => d.x).y(d => d.y));
 
@@ -56,17 +60,17 @@ const TreeView = ({ data, onNodeClick, onRightClick, searchTerm, isZoomEnabled, 
       .on("contextmenu", (event, d) => onRightClick(event, d))
       .style("cursor", d => d.data && d.data.type === 'blob' ? "pointer" : "default");
 
-    node.append("circle").attr("r", d => d.data && d.data.path === 'root' ? 8 : 5);
+  node.append("circle").attr("r", d => d.data && d.data.path === 'root' ? 8 : 5).attr('fill', '#60a5fa').attr('stroke', '#a78bfa').attr('stroke-width', 1).style('filter','url(#treeGlow)');
 
     node.append("text")
       .attr("dy", "0.31em")
       .attr("x", d => d && d.children ? -8 : 8)
       .attr("text-anchor", d => d && d.children ? "end" : "start")
       .text(d => d.data && d.data.path ? d.data.path.split('/').pop() : "")
-      .style("font-size", "12px").style("paint-order", "stroke").style("stroke", "white").style("stroke-width", "3px");
+      .style("font-size", "12px").style("fill", "#e5e7eb").style("paint-order", "stroke").style("stroke", "rgba(99,102,241,0.5)").style("stroke-width", "2px");
 
-    node.selectAll("circle").attr("fill", d => d && d.children ? "#f59e0b" : "#10b981");
-    node.selectAll("text").attr("fill", "#374151");
+  node.selectAll("circle").attr("fill", d => d && d.children ? "#f59e0b" : "#34d399");
+  node.selectAll("text").attr("fill", "#cbd5e1");
 
   }, [root, onNodeClick, onRightClick]);
 
