@@ -1,10 +1,26 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import * as d3 from 'd3';
 import path from 'path-browserify';
+import Tooltip from './Tooltip';
 
-const TreeView = ({ data, onNodeClick, onRightClick, searchTerm, isZoomEnabled, highlightedDeps, selectedFilePath }) => {
+const TreeView = ({ data, onNodeClick, onRightClick, searchTerm, isZoomEnabled, highlightedDeps, selectedFilePath, onNodeHover }) => {
   const svgRef = useRef();
   const zoomRef = useRef();
+  const [tooltip, setTooltip] = useState({ isVisible: false, position: null, content: '' });
+
+  const handleNodeHover = (event, d, isEntering) => {
+    if (isEntering && d.data && d.data.type === 'blob') {
+      setTooltip({
+        isVisible: true,
+        position: { x: event.clientX, y: event.clientY },
+        content: 'Click to see code and code explanation'
+      });
+      if (onNodeHover) onNodeHover(d.data, true);
+    } else {
+      setTooltip({ isVisible: false, position: null, content: '' });
+      if (onNodeHover) onNodeHover(null, false);
+    }
+  };
 
   const root = useMemo(() => {
     if (!data || data.length === 0) return null;
@@ -39,14 +55,18 @@ const TreeView = ({ data, onNodeClick, onRightClick, searchTerm, isZoomEnabled, 
     const treeLayout = d3.tree().size([width, dynamicHeight - 200]);
     treeLayout(root);
 
-    const svg = container.append("svg").attr("width", width).attr("height", dynamicHeight).attr("viewBox", [0, 0, width, dynamicHeight]);
+  const svg = container.append("svg").attr("width", width).attr("height", dynamicHeight).attr("viewBox", [0, 0, width, dynamicHeight]);
+  const defs = svg.append('defs');
+  const glow = defs.append('filter').attr('id','treeGlow');
+  glow.append('feGaussianBlur').attr('stdDeviation','2.5').attr('result','coloredBlur');
+  const fm = glow.append('feMerge'); fm.append('feMergeNode').attr('in','coloredBlur'); fm.append('feMergeNode').attr('in','SourceGraphic');
     const g = svg.append("g").attr("transform", `translate(0, 50)`);
 
     zoomRef.current = d3.zoom().extent([[0, 0], [width, dynamicHeight]]).scaleExtent([0.5, 3]).on("zoom", (event) => {
         g.attr("transform", event.transform);
     });
 
-    g.append("g").attr("fill", "none").attr("stroke", "#a1a1aa").attr("stroke-opacity", 0.7).attr("stroke-width", 1.5)
+    g.append("g").attr("fill", "none").attr("stroke", "#93c5fd").attr("stroke-opacity", 0.35).attr("stroke-width", 1.2).style('filter','url(#treeGlow)')
       .selectAll("path").data(root.links()).join("path")
       .attr("d", d3.linkVertical().x(d => d.x).y(d => d.y));
 
@@ -54,21 +74,23 @@ const TreeView = ({ data, onNodeClick, onRightClick, searchTerm, isZoomEnabled, 
       .attr("transform", d => `translate(${d.x},${d.y})`)
       .on("click", (event, d) => onNodeClick(d.data))
       .on("contextmenu", (event, d) => onRightClick(event, d))
+      .on("mouseover", (event, d) => handleNodeHover(event, d, true))
+      .on("mouseout", (event, d) => handleNodeHover(event, d, false))
       .style("cursor", d => d.data && d.data.type === 'blob' ? "pointer" : "default");
 
-    node.append("circle").attr("r", d => d.data && d.data.path === 'root' ? 8 : 5);
+  node.append("circle").attr("r", d => d.data && d.data.path === 'root' ? 8 : 5).attr('fill', '#60a5fa').attr('stroke', '#a78bfa').attr('stroke-width', 1).style('filter','url(#treeGlow)');
 
     node.append("text")
       .attr("dy", "0.31em")
       .attr("x", d => d && d.children ? -8 : 8)
       .attr("text-anchor", d => d && d.children ? "end" : "start")
       .text(d => d.data && d.data.path ? d.data.path.split('/').pop() : "")
-      .style("font-size", "12px").style("paint-order", "stroke").style("stroke", "white").style("stroke-width", "3px");
+      .style("font-size", "12px").style("fill", "#e5e7eb").style("paint-order", "stroke").style("stroke", "rgba(99,102,241,0.5)").style("stroke-width", "2px");
 
-    node.selectAll("circle").attr("fill", d => d && d.children ? "#f59e0b" : "#10b981");
-    node.selectAll("text").attr("fill", "#374151");
+  node.selectAll("circle").attr("fill", d => d && d.children ? "#f59e0b" : "#34d399");
+  node.selectAll("text").attr("fill", "#cbd5e1");
 
-  }, [root, onNodeClick, onRightClick]);
+  }, [root, onNodeClick, onRightClick, handleNodeHover]);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current).select("svg");
@@ -116,7 +138,16 @@ const TreeView = ({ data, onNodeClick, onRightClick, searchTerm, isZoomEnabled, 
       });
   }, [searchTerm, highlightedDeps, selectedFilePath]);
 
-  return <div ref={svgRef} className="w-full h-full" />;
+  return (
+    <div className="relative">
+      <div ref={svgRef} className="w-full h-full" />
+      <Tooltip 
+        isVisible={tooltip.isVisible} 
+        position={tooltip.position} 
+        content={tooltip.content} 
+      />
+    </div>
+  );
 };
 
 export default TreeView;
