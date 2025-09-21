@@ -44,7 +44,16 @@ export const fetchRepoTree = async (repoUrl, token, branch = null) => {
     
     return treeResponse.data.tree;
   } catch (error) {
-    throw new Error(error.response?.data?.message || 'Failed to fetch repository data.');
+    const status = error.response?.status;
+    const message = error.response?.data?.message || error.message;
+    if (status === 401) throw new Error('Unauthorized: Your GitHub token is invalid or expired.');
+    if (status === 403) {
+      const isRateLimited = /rate limit/i.test(message) || (error.response?.headers?.['x-ratelimit-remaining'] === '0');
+      throw new Error(isRateLimited ? 'GitHub API rate limit exceeded. Add a Personal Access Token and try again.' : 'Forbidden: Access to this repository may be restricted.');
+    }
+    if (status === 404) throw new Error('Repository not found. Check the URL and your access permissions.');
+    if (error.code === 'ERR_NETWORK') throw new Error('Network error: Check your internet connection or browser extensions blocking requests.');
+    throw new Error(message || 'Failed to fetch repository data.');
   }
 };
 
@@ -97,6 +106,10 @@ export const fetchFileContent = async (repoUrl, fileSha, token, path) => {
     
     return { isBinary: false, content: response.data, base64: null };
   } catch (error) {
+    const status = error.response?.status;
+    if (status === 404) throw new Error('File content not found. It may have been moved or deleted.');
+    if (status === 403) throw new Error('Access denied fetching file content (possible rate limit). Provide a GitHub token or try later.');
+    if (error.code === 'ERR_NETWORK') throw new Error('Network error while fetching file content.');
     throw new Error('Failed to fetch file content.');
   }
 };
@@ -115,6 +128,10 @@ export const fetchFileCommits = async (repoUrl, token, filepath, branch = null) 
     
     return commitsResponse.data;
   } catch (error) {
+    const status = error.response?.status;
+    if (status === 404) throw new Error('No commit history found for this path on the selected branch.');
+    if (status === 403) throw new Error('Access denied fetching commit history (possible rate limit).');
+    if (error.code === 'ERR_NETWORK') throw new Error('Network error while fetching commits.');
     throw new Error('Failed to fetch commits.');
   }
 };

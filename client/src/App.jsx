@@ -11,6 +11,7 @@ function App() {
   const [githubToken, setGithubToken] = useState('');
   const [repoData, setRepoData] = useState(null);
   const [status, setStatus] = useState({ message: 'Enter a repository URL to begin.', type: 'info' });
+  const [isValidRepoUrl, setIsValidRepoUrl] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [currentVis, setCurrentVis] = useState('graph'); // 'graph' or 'tree'
   const [selectedFile, setSelectedFile] = useState(null);
@@ -55,6 +56,17 @@ function App() {
       setIsLoading(false);
     }
   };
+
+  // Live URL validation
+  useEffect(() => {
+    if (!repoUrl) { setIsValidRepoUrl(true); return; }
+    try {
+      parseRepoUrl(repoUrl);
+      setIsValidRepoUrl(true);
+    } catch {
+      setIsValidRepoUrl(false);
+    }
+  }, [repoUrl]);
 
   // Node click handler for graph/tree
   const handleNodeClick = useCallback(async (node) => {
@@ -121,6 +133,11 @@ function App() {
                 required 
               />
             </div>
+            {!isValidRepoUrl && (
+              <div className="status text-red-400" style={{ marginTop: '-0.5rem' }}>
+                Format: https://github.com/owner/repo
+              </div>
+            )}
             <div className="input-wrap">
               <span className="input-icon">🛡️</span>
               <input 
@@ -130,7 +147,7 @@ function App() {
                 placeholder="GitHub Personal Access Token (Optional)" 
               />
             </div>
-            <button type="submit" disabled={isLoading} className="cta-sheen">
+            <button type="submit" disabled={isLoading || !isValidRepoUrl} className="cta-sheen">
               {isLoading ? 'Loading...' : 'Visualize'}
             </button>
             <div className="hint">Tokens are used only for GitHub API rate limits and never stored on the server.</div>
