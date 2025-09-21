@@ -1,8 +1,11 @@
-# AI-Powered Repo Visualizer
+# AI-Powered Repo Visualizer 2.0 🚀
 
-A beautiful, sci-fi themed GitHub repository visualizer with AI-powered code explanations. Explore repository structures through interactive graph and tree views with animated backgrounds and neon aesthetics.
+A stunning sci-fi themed repository visualization tool that transforms GitHub repositories into interactive 3D-style graphs with AI-powered code explanations.
 
 ![AI-Powered Repo Visualizer](client/public/logo.svg)
+
+## 🌟 Live Demo
+[Visit the deployed application](https://your-deployed-url.vercel.app)
 
 ## Features
 
@@ -41,8 +44,8 @@ A beautiful, sci-fi themed GitHub repository visualizer with AI-powered code exp
 ### 1. Clone the Repository
 
 ```sh
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+git clone https://github.com/distortion-12/Git-Repo-Visualizer-2.0.git
+cd Git-Repo-Visualizer-2.0
 ```
 
 ### 2. Setup the Server
