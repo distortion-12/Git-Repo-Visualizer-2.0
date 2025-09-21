@@ -3,7 +3,7 @@ import RepoGraph from './components/RepoGraph';
 import TreeView from './components/TreeView';
 import CodePanel from './components/CodePanel'; // This will now be our right-side panel
 import BackgroundFX from './components/BackgroundFX';
-import { fetchRepoTree, fetchFileContent } from './utils/githubApi';
+import { fetchRepoTree, fetchFileContent, parseRepoUrl } from './utils/githubApi';
 
 function App() {
   const [view, setView] = useState('input'); // 'input' or 'visualizer'
@@ -29,6 +29,19 @@ function App() {
     setIsLoading(true);
     setRepoData(null);
     setSelectedFile(null);
+    
+    // Validate URL early and give a friendly message
+    try {
+      parseRepoUrl(repoUrl);
+    } catch {
+      setIsLoading(false);
+      setStatus({ 
+        message: 'Please enter a full GitHub repository URL like https://github.com/owner/repo', 
+        type: 'error' 
+      });
+      return;
+    }
+
     setStatus({ message: 'Fetching repository structure...', type: 'info' });
 
     try {

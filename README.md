@@ -66,7 +66,27 @@ Start the server:
 ```sh
 npm start
 ```
-Server runs on [http://localhost:3001](http://localhost:3001)
+## Deployment (Netlify)
+
+This app can run 100% on the frontend using the GitHub API and optional AI providers. The `server/` folder is not required for deployment and is kept only for optional local proxying. For Netlify, deploy the `client` project as a SPA.
+
+Netlify settings (already in `netlify.toml`):
+
+- Base directory: `client`
+- Build command: `npm run build`
+- Publish directory: `dist`
+- SPA redirect: handled by `_redirects` and the `[[redirects]]` rule
+
+If your dashboard build settings differ, update them or delete overrides so Netlify uses `netlify.toml`.
+
+Troubleshooting:
+- Seeing 404 on refresh or deep links? Ensure `client/public/_redirects` contains: `/* /index.html 200`.
+- Browser console shows requests to `http://localhost:3001/...`? Update to the latest code: the app no longer calls a backend. Clear caches and redeploy.
+- GitHub API rate limits? Provide a Personal Access Token in the landing form (it is used only in the browser and not stored).
+
+## Optional local server (legacy)
+
+If you want to run the optional server for local proxying, you can start it and the client locally. The server runs on [http://localhost:3001](http://localhost:3001). The deployed app does not require it.
 
 ### 3. Setup the Client
 
