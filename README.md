@@ -1,16 +1,38 @@
-# AI-Powered Git Repo Visualizer
+# AI-Powered Repo Visualizer 2.0 🚀
 
-Visualize and explore the structure of any public or private GitHub repository with interactive graph and tree views. Includes file history, code explanations powered by Gemini AI, and dark mode support.
+A stunning sci-fi themed repository visualization tool that transforms GitHub repositories into interactive 3D-style graphs with AI-powered code explanations.
+
+![AI-Powered Repo Visualizer](client/public/logo.svg)
+
+## 🌟 Live Demo
+[Visit the deployed application](https://your-deployed-url.vercel.app)
 
 ## Features
 
-- 🌳 **Tree & Graph Views:** Visualize the file structure of any GitHub repo.
-- 🔍 **Search & Highlight:** Instantly find and highlight files/folders.
-- 🕹️ **Pan/Zoom Controls:** Lock/unlock pan and zoom for better navigation.
-- 🕵️ **File History:** View commit history for any file.
-- 🤖 **AI Code Explanation:** Get file or selection-level explanations using Gemini AI.
-- 🌗 **Dark Mode:** Toggle between light, dark, and system themes.
-- 🔑 **GitHub Token Support:** Use your token to avoid API rate limits.
+### 🎨 Sci-Fi UI/UX
+- **Animated starfield background** with nebula effects
+- **Neon glow effects** on nodes and interactive elements
+- **3D parallax tilt** on mouse movement
+- **Glassmorphism design** with backdrop blur effects
+- **Responsive layout** with resizable panels
+
+### 📊 Visualization Modes
+- **Graph View**: Force-directed network visualization with animated links
+- **Tree View**: Hierarchical tree structure with glow effects
+- **Interactive search** with real-time highlighting
+- **Zoom and pan controls** with lock/unlock toggle
+
+### 🤖 AI-Powered Explanations
+- **Multi-provider support**: Choose between Gemini, OpenAI, or Grok (xAI)
+- **File-level explanations**: Get AI summaries of code files
+- **Secure API key storage**: Keys stored locally in browser
+- **Binary file handling**: Safe preview for images and other non-text files
+
+### 🔧 Developer Features
+- **Resizable panels**: Adjust code view and explanation areas
+- **Collapsible sidebar**: Hide panels for full-width visualization
+- **File history**: View commit history for selected files
+- **GitHub integration**: Works with public and private repos (with token)
 
 ## Getting Started
 
@@ -22,8 +44,8 @@ Visualize and explore the structure of any public or private GitHub repository w
 ### 1. Clone the Repository
 
 ```sh
-git clone https://github.com/your-username/your-repo.git
-cd your-repo
+git clone https://github.com/distortion-12/Git-Repo-Visualizer-2.0.git
+cd Git-Repo-Visualizer-2.0
 ```
 
 ### 2. Setup the Server
