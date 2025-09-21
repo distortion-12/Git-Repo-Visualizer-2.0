@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, useState } from 'react';
+import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import Tooltip from './Tooltip';
 
@@ -13,7 +13,7 @@ const RepoGraph = ({ data, onNodeClick, searchTerm, isZoomEnabled, onNodeHover }
     return d3.scaleSqrt().domain([0, d3.max(fileSizes)]).range([4, 15]);
   }, [data]);
 
-  const handleNodeHover = (event, d, isEntering) => {
+  const handleNodeHover = useCallback((event, d, isEntering) => {
     if (isEntering && d.type === 'blob') {
       const rect = svgRef.current.getBoundingClientRect();
       setTooltip({
@@ -26,7 +26,7 @@ const RepoGraph = ({ data, onNodeClick, searchTerm, isZoomEnabled, onNodeHover }
       setTooltip({ isVisible: false, position: null, content: '' });
       if (onNodeHover) onNodeHover(null, false);
     }
-  };
+  }, [onNodeHover]);
 
   useEffect(() => {
     if (!data) return;

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, useState } from 'react';
+import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import path from 'path-browserify';
 import Tooltip from './Tooltip';
@@ -8,7 +8,7 @@ const TreeView = ({ data, onNodeClick, onRightClick, searchTerm, isZoomEnabled, 
   const zoomRef = useRef();
   const [tooltip, setTooltip] = useState({ isVisible: false, position: null, content: '' });
 
-  const handleNodeHover = (event, d, isEntering) => {
+  const handleNodeHover = useCallback((event, d, isEntering) => {
     if (isEntering && d.data && d.data.type === 'blob') {
       setTooltip({
         isVisible: true,
@@ -20,7 +20,7 @@ const TreeView = ({ data, onNodeClick, onRightClick, searchTerm, isZoomEnabled, 
       setTooltip({ isVisible: false, position: null, content: '' });
       if (onNodeHover) onNodeHover(null, false);
     }
-  };
+  }, [onNodeHover]);
 
   const root = useMemo(() => {
     if (!data || data.length === 0) return null;
