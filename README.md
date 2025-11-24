@@ -5,7 +5,7 @@ A stunning sci-fi themed repository visualization tool that transforms GitHub re
 ![AI-Powered Repo Visualizer](client/public/logo.svg)
 
 ## 🌟 Live Demo
-[Visit the deployed application](https://your-deployed-url.vercel.app)
+[Visit the deployed application](https://git-repo-visualizer.netlify.app)
 
 ## Features
 
